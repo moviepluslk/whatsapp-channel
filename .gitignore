@@ -1,4 +1,8 @@
 node_modules/
 .session/
 .DS_Store
+<<<<<<< HEAD
 .env
+=======
+.env
+>>>>>>> 8dfa7ab92dda11f617030cf7ba2bdc2cc2f00ae2
