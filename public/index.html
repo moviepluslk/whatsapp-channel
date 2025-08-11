@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Bot</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #qr-code {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>WhatsApp Bot Controller</h1>
+    
+    <div id="status" class="status disconnected">Disconnected</div>
+    
+    <div id="qr-container">
+        <h2>Scan QR Code</h2>
+        <div id="qr-code"></div>
+        <p>Scan this QR code with your WhatsApp mobile app</p>
+    </div>
+    
+    <div id="instructions">
+        <h3>How to use:</h3>
+        <p>1. Scan the QR code above with your WhatsApp mobile app</p>
+        <p>2. Once connected, you can send commands to the bot</p>
+        <p>3. To send a message to a channel, use: <code>/send &lt;channel_jid&gt; &lt;message&gt;</code></p>
+    </div>
+
+    <script>
+        const socket = io();
+        const qrCodeElement = document.getElementById('qr-code');
+        const statusElement = document.getElementById('status');
+        const qrContainer = document.getElementById('qr-container');
+        
+        socket.on('qr', (qr) => {
+            statusElement.textContent = 'Scan QR Code';
+            statusElement.className = 'status loading';
+            qrCodeElement.innerHTML = '';
+            
+            // Generate QR code image
+            const qrImage = document.createElement('img');
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qr)}`;
+            qrCodeElement.appendChild(qrImage);
+        });
+        
+        socket.on('authenticated', () => {
+            statusElement.textContent = 'Authenticated, connecting...';
+            statusElement.className = 'status loading';
+        });
+        
+        socket.on('ready', () => {
+            statusElement.textContent = 'Connected!';
+            statusElement.className = 'status connected';
+            qrContainer.style.display = 'none';
+        });
+        
+        socket.on('auth_failure', (msg) => {
+            statusElement.textContent = `Authentication failed: ${msg}`;
+            statusElement.className = 'status disconnected';
+        });
+        
+        socket.on('disconnect', () => {
+            statusElement.textContent = 'Disconnected from server';
+            statusElement.className = 'status disconnected';
+        });
+    </script>
+</body>
+</html>
