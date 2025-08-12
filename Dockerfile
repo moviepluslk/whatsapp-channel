@@ -1,7 +1,7 @@
 FROM node:22-slim
 
-# Install dependencies required for Chromium
-RUN apt-get update && apt-get install -y \
+# Install dependencies required for Chromium with error handling
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libgobject-2.0-0 \
     libglib2.0-0 \
     libnss3 \
@@ -17,9 +17,8 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     libgbm1 \
     libasound2 \
-    --no-install-recommends \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* || { echo "apt-get install failed, checking available packages"; apt-cache search libgobject; exit 1; }
 
 # Set working directory
 WORKDIR /app
