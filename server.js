@@ -19,8 +19,4 @@ const whatsappClient = require('./whatsapp.js')(io);
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> 8dfa7ab92dda11f617030cf7ba2bdc2cc2f00ae2
