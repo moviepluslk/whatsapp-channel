@@ -1,39 +1,29 @@
-# Use Node.js official image
-FROM node:22
-
-# Install Chromium dependencies for Puppeteer
 RUN apt-get update && apt-get install -y \
-  libglib2.0-0 \
-  libnss3 \
+  ca-certificates \
+  fonts-liberation \
+  libasound2 \
   libatk1.0-0 \
-  libatk-bridge2.0-0 \
+  libcairo2 \
   libcups2 \
-  libdrm2 \
-  libxkbcommon0 \
+  libdbus-1-3 \
+  libexpat1 \
+  libfontconfig1 \
+  libgbm1 \
+  libglib2.0-0 \
+  libgtk-3-0 \
+  libnspr4 \
+  libnss3 \
+  libpango-1.0-0 \
+  libpangocairo-1.0-0 \
+  libx11-6 \
+  libx11-xcb1 \
+  libxcb1 \
   libxcomposite1 \
   libxdamage1 \
+  libxext6 \
   libxfixes3 \
   libxrandr2 \
-  libgbm1 \
-  libpango-1.0-0 \
-  libasound2 \
-  fonts-liberation \
-  libxshmfence1 \
-  libxext6 \
+  libxrender1 \
   wget \
+  xdg-utils \
   && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /app
-
-# Copy dependency files first (for better Docker caching)
-COPY package*.json ./
-
-# Install Node.js dependencies
-RUN npm install
-
-# Copy the rest of your app
-COPY . .
-
-# Run the bot
-CMD ["npm", "start"]
