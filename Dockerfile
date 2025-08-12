@@ -1,24 +1,27 @@
 FROM node:22-slim
 
-# Install dependencies required for Chromium with error handling
+# Install dependencies required for @sparticuz/chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgobject-2.0-0 \
-    libglib2.0-0 \
-    libnss3 \
-    libnspr4 \
-    libatk1.0-0 \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
     libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcairo2 \
     libcups2 \
     libdrm2 \
-    libxkbcommon0 \
+    libgbm1 \
+    libglib2.0-0 \
+    libnspr4 \
+    libnss3 \
+    libpango-1.0-0 \
     libxcomposite1 \
     libxdamage1 \
     libxfixes3 \
+    libxkbcommon0 \
     libxrandr2 \
-    libgbm1 \
-    libasound2 \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* || { echo "apt-get install failed, checking available packages"; apt-cache search libgobject; exit 1; }
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
