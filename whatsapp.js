@@ -2,7 +2,6 @@ module.exports = function (io) {
     const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
     const qrcode = require('qrcode-terminal');
     const express = require('express');
-    const ngrok = require('ngrok'); // Add ngrok package
 
     const client = new Client({
         authStrategy: new LocalAuth(),
@@ -82,21 +81,10 @@ module.exports = function (io) {
         }
     });
 
-    // Start HTTP server and ngrok tunnel
-    const PORT = 3001;
-    app.listen(PORT, async () => {
+    // Start HTTP server
+    const PORT = 3031;
+    app.listen(PORT, () => {
         console.log(`HTTP API listening on port ${PORT}`);
-        try {
-            const url = await ngrok.connect({
-                addr: PORT,
-                authtoken: '310YJ450JsaCuoMLCcUcnYKn0Pt_683nLSxgjPjVYk53qzDJy', // Replace with your ngrok token
-                region: 'ap'
-            });
-            console.log(`🌍 Public URL: ${url}`);
-            io.emit('ngrok_url', url);
-        } catch (err) {
-            console.error('❌ Error starting ngrok:', err);
-        }
     });
 
     client.initialize();
