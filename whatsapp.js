@@ -12,7 +12,7 @@ module.exports = function (io) {
     });
 
     let qrCode = null;
-    const targetChannel = "120363421072313343@newsletter";
+    const targetChannel = "120363412720700866@newsletter";
     const ownerNumber = "94785760531@s.whatsapp.net"; // Your number for startup message
 
     client.on('qr', (qr) => {
