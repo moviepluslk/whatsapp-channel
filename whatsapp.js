@@ -2,7 +2,8 @@ module.exports = function (io) {
     const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
     const qrcode = require('qrcode-terminal');
     const express = require('express');
-
+    const os = require('os');
+    
     const client = new Client({
         authStrategy: new LocalAuth(),
         puppeteer: {
@@ -10,10 +11,8 @@ module.exports = function (io) {
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         }
     });
-
+    
     let qrCode = null;
-    const targetChannel = "120363412720700866@newsletter";
-    const ownerNumber = "94785760531@s.whatsapp.net"; // Your number for startup message
 
     client.on('qr', (qr) => {
         qrCode = qr;
@@ -35,45 +34,50 @@ module.exports = function (io) {
     client.on('ready', async () => {
         console.log('Client is ready!');
         io.emit('ready');
-
-        // Send startup message
-        try {
-            const message =
-                "🚀 WhatsApp bot is now connected and ready!\n\n" +
-                "Available commands:\n" +
-                "!ping - Test bot response";
-            await client.sendMessage(ownerNumber, message);
-            console.log(`Initial message sent to ${ownerNumber}`);
-        } catch (error) {
-            console.error('Error sending initial message:', error);
-        }
     });
 
     // Listen for messages
     client.on('message_create', async (msg) => {
         console.log(`Received message from ${msg.from}: ${msg.body}`);
-
-        if (msg.body === '!ping') {
-            await msg.reply('🏓 pong!');
+        
+        if (msg.body === '!system') {
+            const systemInfo = 
+                "💻 System Information:\n\n" +
+                `🖥️ Platform: ${os.platform()}\n` +
+                `🏗️ Architecture: ${os.arch()}\n` +
+                `📊 CPU Cores: ${os.cpus().length}\n` +
+                `💾 Total Memory: ${Math.round(os.totalmem() / 1024 / 1024 / 1024)}GB\n` +
+                `🆓 Free Memory: ${Math.round(os.freemem() / 1024 / 1024 / 1024)}GB\n` +
+                `⏱️ Uptime: ${Math.floor(os.uptime() / 3600)}h ${Math.floor((os.uptime() % 3600) / 60)}m\n` +
+                `🏠 Hostname: ${os.hostname()}\n` +
+                `👤 User: ${os.userInfo().username}\n` +
+                `📂 Node.js Version: ${process.version}`;
+            
+            await msg.reply(systemInfo);
             return;
         }
     });
 
     // HTTP API
     const app = express();
-
     app.get('/', async (req, res) => {
-        const { send, photo } = req.query;
+        const { send, photo, jid } = req.query;
+        
         try {
+            if (!jid) {
+                res.status(400).send('❌ Missing required parameter: jid. Use ?jid=<target_jid>&send=<message>&photo=<url>');
+                return;
+            }
+
             if (photo && send) {
                 const media = await MessageMedia.fromUrl(photo);
-                await client.sendMessage(targetChannel, media, { caption: send });
+                await client.sendMessage(jid, media, { caption: send });
                 res.send('✅ Photo with caption sent!');
             } else if (send) {
-                await client.sendMessage(targetChannel, send);
+                await client.sendMessage(jid, send);
                 res.send('✅ Text message sent!');
             } else {
-                res.send('❌ Missing parameters. Use ?send=<message>&photo=<url>');
+                res.send('❌ Missing parameters. Use ?jid=<target_jid>&send=<message>&photo=<url>');
             }
         } catch (error) {
             console.error('Error sending via HTTP:', error);
